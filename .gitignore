@@ -9,3 +9,5 @@ data/Dataset.csv
 
 .env
 temp/
+
+images/

@@ -1,8 +1,6 @@
-# Malaysian Property Price Analytics & Prediction Dashboard
+## Malaysian Property Price Analytics & Prediction Dashboard
 
 A dashboard for exploring Malaysian property listings, visualizing price trends, and predicting property prices using machine learning.
-
-![Dashboard Screenshot](images/dashboard-screen.png)
 
 ## Dataset
 
