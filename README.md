@@ -2,6 +2,8 @@
 
 A dashboard for exploring Malaysian property listings, visualizing price trends, and predicting property prices using machine learning.
 
+![Dashboard Screenshot](images/dashboard-screen.png)
+
 ## Dataset
 
 Source: [Raw Malaysian Housing Prices Data](https://www.kaggle.com/datasets/mcpenguin/raw-malaysian-housing-prices-data?select=houses.csv) from Kaggle.
