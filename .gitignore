@@ -1,0 +1,11 @@
+node_modules/
+
+.next/
+__pycache__/
+*.pyc
+
+data/houses.csv
+data/Dataset.csv
+
+.env
+temp/
