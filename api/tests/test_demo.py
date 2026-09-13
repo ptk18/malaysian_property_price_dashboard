@@ -216,7 +216,7 @@ def test_provider_contract_and_daily_cap(monkeypatch, tmp_path, data):
         sent = upstream.call_args.kwargs
         assert (
             sent["json"]["generationConfig"]["responseFormat"]["text"]["mimeType"]
-            == "application/json"
+            == "APPLICATION_JSON"
         )
         assert "unit-test-placeholder" not in json.dumps(sent["json"])
         with pytest.raises(HTTPException) as exc:

@@ -1,6 +1,6 @@
 # Implementation verification
 
-Verified locally on 2026-09-13. Automated checks use the supplied dataset and mocked Gemini responses; live provider compatibility and public deployment remain unverified.
+Verified locally on 2026-09-13. Automated checks use the supplied dataset and mocked Gemini responses. A separate live Gemini browser check is recorded below; public deployment remains unverified.
 
 ## Automated checks
 
@@ -29,6 +29,16 @@ Screenshots and failure traces are generated under ignored `frontend/test-result
 - Kuala Lumpur / Condominium / RM500,000 / 3 bedrooms: 72 matches, first 50 displayed.
 - Selangor / Apartment / RM300,000 / 3 bedrooms: 147 matches, first 50 displayed.
 
+## Live Gemini check
+
+On 2026-09-13, three authorized requests used `gemini-3.8-flash`. The first two returned HTTP 400 because the REST request supplied `application/json` where the API requires the `APPLICATION_JSON` enum. The adapter and its provider-contract test were corrected using the [REST reference](https://ai.google.dev/api/generate-content#TextResponseFormat).
+
+The final request succeeded through the production frontend and local API. The brief requested a three-bedroom condominium in Kuala Lumpur at a target budget of RM500,000. All four extracted fields matched expectations, with no review notes. The browser verified that extraction did not search automatically, changed the budget to RM480,000, explicitly confirmed the search, and compared three resulting properties.
+
+The successful response reported 635 prompt tokens and 62 output tokens, 697 total. Rejected requests returned no usage metadata; no currency cost was inferred. The backend's 41 tests and Ruff checks passed after the fix.
+
+This establishes one successful live workflow. Hard-budget wording, unsupported preferences, and missing fields still need live evaluation; their automated checks remain mocked. Temporary AI-enabled test servers were stopped after the check.
+
 ## Remaining validation
 
-Live Gemini evaluation, public HTTPS availability, deployed CORS and quota persistence, user interviews, and measured workflow impact remain pending. See [deployment.md](deployment.md) for release steps and [demo-walkthrough.md](demo-walkthrough.md) for the review flow.
+Broader live Gemini evaluation, public HTTPS availability, deployed CORS and quota persistence, user interviews, and measured workflow impact remain pending. See [deployment.md](deployment.md) for release steps and [demo-walkthrough.md](demo-walkthrough.md) for the review flow.

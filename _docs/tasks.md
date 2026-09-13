@@ -1,6 +1,6 @@
 # Implementation backlog
 
-Each task is scoped to one focused session and can be handed off with the shared contracts in `plan.md`. Read `process.md` before beginning, `testing-guidelines.md` before writing tests, and `design-system.md` for UI work. Local implementation is complete; live provider evaluation and public deployment remain pending. See `verification.md` for evidence.
+Each task is scoped to one focused session and can be handed off with the shared contracts in `plan.md`. Read `process.md` before beginning, `testing-guidelines.md` before writing tests, and `design-system.md` for UI work. Local implementation and one live provider flow are verified; broader live evaluation and public deployment remain pending. See `verification.md` for evidence.
 
 ## 1. Set up an empty project with a passing test
 Goal: Establish an empty runnable frontend with one passing smoke test.

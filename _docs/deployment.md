@@ -1,6 +1,6 @@
 # Deployment guide
 
-The application is packaged as two containers. Public deployment and live Gemini evaluation remain pending.
+The application is packaged as two containers. One local live Gemini flow has passed; broader live evaluation and public deployment remain pending.
 
 ## Supported topology
 
@@ -35,7 +35,7 @@ The quota counts requests, not currency. Provider/account spending controls shou
 5. For an authorized live-provider check, enable AI and test a small set of briefs, missing fields, unsupported constraints, and hard-budget wording. Confirm editable output and manual fallback; record real findings before claiming live Gemini reliability.
 6. Verify rate limits, persistent quota state, and HTTPS in the real host. Record the public URL in the README and verification document only after it works.
 
-Local development/browser tests do not establish public reachability, production HTTPS, or successful requests to a live Gemini model.
+Local tests do not establish public reachability or production HTTPS. Mocked browser tests also do not establish live model compatibility; see [verification.md](verification.md) for the separately recorded live check.
 
 ## Local production verification
 

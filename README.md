@@ -85,7 +85,7 @@ The cleaned dataset contains **3,604 advertised listings**, a median asking pric
 
 These figures describe the supplied dataset. Listing freshness, availability, and achieved transaction prices are unverified. The source `state` field mixes geographic levels; the application preserves those labels as **dataset location** and does not infer nearby areas or state membership.
 
-Gemini integration is verified with mocked responses; live model evaluation and public deployment remain pending. Workflow time savings and user acceptance have not yet been measured.
+Gemini integration has automated mocked coverage and one successful live browser check with `gemini-3.8-flash`, including edited filters, confirmed matching, and comparison. Broader live evaluation and public deployment remain pending. Workflow time savings and user acceptance have not yet been measured.
 
 ## Project documentation
 

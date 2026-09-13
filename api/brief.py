@@ -116,7 +116,7 @@ def parse_brief(brief: str, listings: Listings) -> BriefResult:
         "contents": [{"role": "user", "parts": [{"text": brief}]}],
         "generationConfig": {
             "responseFormat": {
-                "text": {"mimeType": "application/json", "schema": BRIEF_RESPONSE_SCHEMA}
+                "text": {"mimeType": "APPLICATION_JSON", "schema": BRIEF_RESPONSE_SCHEMA}
             },
             "maxOutputTokens": 2048,
             "thinkingConfig": {"thinkingLevel": "low"},

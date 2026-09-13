@@ -28,4 +28,4 @@ Use a concise handoff describing the problem, the resulting behavior, evidence f
 
 The local implementation covers brief review, ranked matching, property comparison, analytics, automated tests, and container packaging. See [verification.md](verification.md) for the tested revision's evidence and [deployment.md](deployment.md) for release steps.
 
-Live Gemini evaluation and public deployment remain pending. User research and workflow-impact measurement are planned follow-up work.
+One live Gemini browser flow has passed. Broader live evaluation and public deployment remain pending. User research and workflow-impact measurement are planned follow-up work.
