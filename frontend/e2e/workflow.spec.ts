@@ -28,9 +28,10 @@ test("manual search, three-property comparison, new-search reset, and analytics"
   });
   await expect(comparison).toBeVisible();
   await expect(
-    comparison.getByRole("heading", { name: "See the tradeoffs" }),
+    comparison.getByRole("heading", { name: "Compare properties" }),
   ).toBeInViewport();
   await expect(comparison.getByRole("columnheader")).toHaveCount(4);
+  await expect(page.getByRole("article")).toHaveCount(0);
   await page.screenshot({ path: "test-results/desktop-comparison.png" });
   await comparison
     .getByRole("button", { name: /Remove/ })
@@ -38,6 +39,10 @@ test("manual search, three-property comparison, new-search reset, and analytics"
     .click();
   await expect(comparison.getByRole("columnheader")).toHaveCount(3);
   await page.getByRole("button", { name: "Back to results" }).click();
+  await expect(cards).toHaveCount(50);
+  await expect(
+    page.getByRole("button", { name: "Compare (2)", exact: true }),
+  ).toBeFocused();
   await page.getByLabel("Target budget (RM)").fill("1");
   await page.getByRole("button", { name: "Find properties" }).click();
   await expect(
@@ -121,6 +126,12 @@ test("mobile flow has no whole-page overflow and comparison scrolls independentl
   });
   await page.getByRole("button", { name: "Find properties" }).click();
   const cards = page.getByRole("article");
+  await expect(
+    page.getByRole("region", { name: "Property matches", exact: true }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole("heading", { name: "Your property matches" }),
+  ).toBeInViewport();
   for (let i = 0; i < 3; i++) await cards.nth(i).getByRole("checkbox").check();
   await page.getByRole("button", { name: "Compare (3)", exact: true }).click();
   await expect(
@@ -130,7 +141,7 @@ test("mobile flow has no whole-page overflow and comparison scrolls independentl
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "See the tradeoffs" }),
+    page.getByRole("heading", { name: "Compare properties" }),
   ).toBeInViewport();
   expect(
     await page.evaluate(

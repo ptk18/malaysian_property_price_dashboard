@@ -70,7 +70,7 @@ export function PropertyCard({
           onChange={() => onToggle(listing.id)}
           aria-label={`Compare ${listing.building_name || "unnamed property"}, result ${index + 1}`}
         />
-        {isSelected ? "Selected for comparison" : "Add to comparison"}
+        {isSelected ? "Selected" : "Compare property"}
       </label>
     </article>
   );

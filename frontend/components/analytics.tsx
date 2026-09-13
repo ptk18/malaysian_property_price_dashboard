@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { count, money } from "../lib/format";
 import { request, getErrorMessage } from "../lib/api";
 import type { Analytics } from "../lib/types";
@@ -27,9 +27,8 @@ export function AnalyticsView() {
   return (
     <section aria-label="Dataset analytics">
       <div className="page-intro">
-        <p className="eyebrow">THE CONTEXT BEHIND THE CHOICES</p>
-        <h1>Know the listing landscape.</h1>
-        <p>All listings. Asking-price patterns across the Malaysian dataset.</p>
+        <h1>Listing analytics</h1>
+        <p>All listings · Asking prices across the Malaysian dataset.</p>
       </div>
       {error && (
         <div className="alert" role="alert">
@@ -56,7 +55,7 @@ export function AnalyticsView() {
             <div className="panel metric">
               <span>Total listings</span>
               <strong>{count(data.total_listings)}</strong>
-              <p>Full dataset · not your shortlist</p>
+              <p>Across the full dataset</p>
             </div>
             <div className="panel metric">
               <span>Median asking price</span>
@@ -75,7 +74,6 @@ export function AnalyticsView() {
           <section className="panel chart-panel">
             <div className="results-heading">
               <div>
-                <p className="eyebrow">ASKING PRICE / MYR</p>
                 <h2>Where listings are priced</h2>
               </div>
               <span className="pill">All listings</span>
@@ -94,12 +92,16 @@ export function AnalyticsView() {
                 {bins.map((bin, index) => (
                   <div className="bar-column" key={index}>
                     <span className="bar-count">{count(bin.count)}</span>
-                    <div
-                      className="bar"
-                      style={{
-                        height: `${bin.count === 0 ? 0 : Math.max(1, (bin.count / maxCount) * 170)}px`,
-                      }}
-                    />
+                    <div className="bar-track">
+                      <div
+                        className="bar"
+                        style={
+                          {
+                            "--bar-fraction": bin.count / maxCount,
+                          } as CSSProperties
+                        }
+                      />
+                    </div>
                     <span className="bar-label">
                       {Math.round(bin.bin_start / 1000)}k
                     </span>
@@ -151,8 +153,7 @@ export function AnalyticsView() {
           <section className="panel chart-panel">
             <div className="results-heading">
               <div>
-                <p className="eyebrow">LOCATION COMPARISON</p>
-                <h2>Different places, different asking prices</h2>
+                <h2>Prices by location</h2>
               </div>
             </div>
             <p className="helper">

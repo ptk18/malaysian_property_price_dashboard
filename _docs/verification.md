@@ -20,6 +20,10 @@ Playwright/Chromium checks cover desktop at 1440 × 1000 and mobile at 390 × 84
 
 Screenshots and failure traces are generated under ignored `frontend/test-results/`. These checks provide focused usability and keyboard coverage, not a comprehensive accessibility audit.
 
+The simplified UI retains the five browser scenarios and four frontend integration tests. Browser coverage also checks that a completed mobile search focuses its results, comparison hides the cards, and returning restores the cards, retained selections, and Compare-button focus. Screenshots use reduced motion to capture settled control states. The updated production build, lint, formatting, and type checks pass.
+
+Additional responsive checks at 320px, 390px, 768px, and 1440px found no whole-page horizontal overflow in results or analytics. The mobile price chart shows all bands without horizontal scrolling, and a mobile search with no matches brings its empty state into view. These UI checks made no live model requests.
+
 ## Data reconciliation
 
 - 3,604 listings; RM345,000 median asking price.

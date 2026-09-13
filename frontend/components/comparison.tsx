@@ -36,16 +36,14 @@ export const Comparison = forwardRef<
     >
       <div className="results-heading">
         <div>
-          <p className="eyebrow">SIDE BY SIDE</p>
-          <h2>See the tradeoffs</h2>
+          <h2>Compare properties</h2>
         </div>
         <button className="text-button" onClick={onClose}>
           Back to results
         </button>
       </div>
       <p className="helper">
-        Facts from the listings. Missing information is shown as unavailable.
-        Scroll horizontally on smaller screens.
+        Compare listing facts side by side. Scroll across to see every property.
       </p>
       <div
         className="table-scroll"

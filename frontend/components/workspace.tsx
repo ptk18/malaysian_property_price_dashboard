@@ -16,15 +16,7 @@ export function Workspace() {
         Skip to workspace
       </a>
       <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            ⌂
-          </span>
-          <div>
-            <strong>Property shortlist</strong>
-            <span>AGENT WORKSPACE</span>
-          </div>
-        </div>
+        <strong className="brand">Property shortlist</strong>
         <nav aria-label="Workspace">
           <button
             aria-pressed={tab === "shortlist"}
@@ -39,44 +31,27 @@ export function Workspace() {
             Analytics
           </button>
         </nav>
-        <span className="dataset-pill">
-          <span aria-hidden="true" />
-          Malaysia · MYR
-        </span>
       </header>
-      <main id="workspace" className="workspace">
+      <main id="workspace" className="workspace" tabIndex={-1}>
         <section hidden={tab !== "shortlist"}>
           <div className="page-intro">
-            <p className="eyebrow">LESS SEARCHING. MORE CLARITY.</p>
             <h1>Property shortlist</h1>
-            <p>Turn a buyer’s brief into a clear, considered set of options.</p>
+            <p>Find properties that fit. Compare the details that matter.</p>
           </div>
-          <div className="workflow">
-            <span>
-              <b>01</b> Understand the brief
-            </span>
-            <span aria-hidden="true">→</span>
-            <span>
-              <b>02</b> Review the matches
-            </span>
-            <span aria-hidden="true">→</span>
-            <span>
-              <b>03</b> Compare the tradeoffs
-            </span>
-          </div>
-          <div className="shortlist-grid">
-            <BriefForm controller={shortlist} />
-            <PropertyResults controller={shortlist} />
-          </div>
+          <BriefForm controller={shortlist} />
+          <PropertyResults controller={shortlist} />
         </section>
         {tab === "analytics" && <AnalyticsView />}
         <footer className="footer">
-          <strong>Malaysian property listing data.</strong>
-          <p>
-            Malaysian advertised listings · MYR · sq ft. Current availability
-            and market coverage are unverified. Dataset location labels mix
-            geographic levels.
-          </p>
+          <p>Malaysian advertised listings · MYR · sq ft</p>
+          <details>
+            <summary>About this data</summary>
+            <p>
+              Current availability and market coverage are unverified. Dataset
+              location labels mix geographic levels and do not imply nearby
+              areas or state boundaries.
+            </p>
+          </details>
         </footer>
       </main>
     </>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ShortlistController } from "../hooks/use-shortlist";
 import { count, money } from "../lib/format";
 import { Comparison } from "./comparison";
@@ -14,35 +14,47 @@ export function PropertyResults({
     matches,
     searchError,
     changed,
-    applySample,
     selected,
     setComparing,
     comparing,
     compared,
     toggle,
   } = controller;
+  const resultsRef = useRef<HTMLElement>(null);
   const comparisonRef = useRef<HTMLElement>(null);
   const compareButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    // A confirmed mobile search should bring its results into view below the form.
+    if (
+      matches &&
+      window.matchMedia("(max-width: 720px)").matches &&
+      !resultsRef.current?.closest("[hidden]")
+    ) {
+      resultsRef.current?.focus({ preventScroll: true });
+      resultsRef.current?.scrollIntoView({
+        behavior: "instant",
+        block: "start",
+      });
+    }
+  }, [matches]);
+
   return (
-    <section className="results-column" aria-label="Property matches">
-      <div className="rules-grid">
-        <div>
-          <span>01 / LOCATION</span>
-          <strong>Stay in the right place</strong>
-          <p>Exact dataset location & type</p>
-        </div>
-        <div>
-          <span>02 / PRIORITY</span>
-          <strong>Bedrooms come first</strong>
-          <p>Then closest to target budget</p>
-        </div>
-      </div>
-      <div aria-live="polite" aria-atomic="true" className="result-status">
+    <section
+      ref={resultsRef}
+      tabIndex={-1}
+      className="results-column"
+      aria-label="Property matches"
+    >
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className={matches || searchBusy ? "result-status" : "sr-only"}
+      >
         {searchBusy
           ? "Finding properties within your confirmed ranges…"
           : matches
             ? `${count(matches.total)} matching properties. Showing ${matches.results.length}.`
-            : "Ready when you are."}
+            : ""}
       </div>
       {searchError && (
         <p role="alert" className="alert">
@@ -56,29 +68,9 @@ export function PropertyResults({
         </p>
       )}
       {!matches && !searchBusy && (
-        <div className="panel empty-state">
-          <div className="empty-icon" aria-hidden="true">
-            ⌂
-          </div>
-          <p className="eyebrow">A SHORTLIST WITH A REASON</p>
-          <h2>
-            The right options start
-            <br />
-            with a clear brief.
-          </h2>
-          <p>
-            Review your buyer’s needs on the left. We’ll find eligible
-            properties and make every tradeoff visible.
-          </p>
-          <button
-            className="button secondary"
-            onClick={() => applySample(0, true)}
-          >
-            Try sample filters <span aria-hidden="true">↗</span>
-          </button>
-          <div className="empty-footnote">
-            Asking-price data · No login needed
-          </div>
+        <div className="empty-state">
+          <h2>Your matches will appear here</h2>
+          <p>Choose your filters, then select Find properties.</p>
         </div>
       )}
       {searchBusy && (
@@ -91,7 +83,6 @@ export function PropertyResults({
           <h2>No properties in this range</h2>
           <p>
             Try editing the target budget, bedrooms, location or property type.
-            We’ll keep your chosen rules until you change them.
           </p>
         </div>
       )}
@@ -106,7 +97,9 @@ export function PropertyResults({
                 {money(matches.applied_filters.budget)}
               </p>
             </div>
-            <span className="pill">Bedrooms first</span>
+            <p className="sort-note">
+              Bedroom match first, then closest budget
+            </p>
           </div>
           <div className="selection-bar">
             <span>
@@ -144,7 +137,10 @@ export function PropertyResults({
               }}
             />
           )}
-          <div className="property-grid">
+          <div
+            className="property-grid"
+            hidden={comparing && compared.length > 0}
+          >
             {matches.results.map((listing, index) => (
               <PropertyCard
                 key={listing.id}
@@ -156,7 +152,7 @@ export function PropertyResults({
               />
             ))}
           </div>
-          {matches.total > matches.limit && (
+          {!comparing && matches.total > matches.limit && (
             <p className="helper results-limit">
               Showing the first {matches.limit} of {count(matches.total)}{" "}
               matches. Refine your filters to narrow the selection.
