@@ -132,7 +132,7 @@ def parse_brief(brief: str, listings: Listings) -> BriefResult:
             response.raise_for_status()
             response_text = extract_response_text(response.json())
             return sanitize_extraction(json.loads(response_text), listings, brief)
-    except httpx.HTTPError, ValueError, KeyError, IndexError, TypeError:
+    except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
         raise HTTPException(
             502, "AI could not extract this brief. Try again or enter filters manually."
         ) from None

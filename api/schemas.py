@@ -108,3 +108,29 @@ class HealthResult(TypedDict):
     status: Literal["ok"]
     dataset_version: str
     total_listings: int
+
+
+class AssessmentInputs(TypedDict):
+    size_sqft: float | None
+    bedrooms: int | None
+    bathrooms: int | None
+    facility_count: int | None
+    property_type: str | None
+    tenure: str | None
+    land_title: str | None
+    location: str | None
+
+
+class Assessment(TypedDict):
+    listing_id: str
+    status: Literal["available", "unavailable"]
+    asking_price: float | None
+    estimated_price: float | None
+    price_difference: float | None
+    price_difference_pct: float | None
+    unavailable_reason: str | None
+    inputs: AssessmentInputs
+    comparable_count: int
+    comparables: list[ListingRecord]
+    comparable_rules: str
+    model_name: Literal["Random Forest"]

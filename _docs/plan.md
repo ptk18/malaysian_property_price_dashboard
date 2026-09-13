@@ -14,6 +14,7 @@ The product hypothesis is that editable AI extraction and explicit matching rule
 4. Inspect ranked results with visible price and bedroom deviations.
 5. Compare up to three properties side by side.
 6. Open Analytics for full-dataset counts, median asking prices, price distribution, and location comparisons.
+7. Optionally assess a matched listing's asking price inside its details, using the saved listing-price model and comparable advertisements.
 
 The intended deployment is a public demo without login. Manual filtering remains available when AI extraction is disabled, unavailable, or out of quota.
 
@@ -26,7 +27,7 @@ The intended deployment is a public demo without login. Manual filtering remains
 - Return the first 50 results and the total qualifying count.
 - Never relax constraints automatically. Empty results prompt the agent to edit filters.
 
-Budget is a target, not a hard maximum. Hard-limit wording is flagged for explicit review before the search can exceed the brief's stated amount. Unsupported or missing values are left for the agent to resolve. Predictions, investment recommendations, and model confidence scores are excluded from the shortlist.
+Budget is a target, not a hard maximum. Hard-limit wording is flagged for explicit review before the search can exceed the brief's stated amount. Unsupported or missing values are left for the agent to resolve. Optional price assessments do not affect eligibility or ranking. Investment recommendations and model confidence scores are excluded.
 
 ## Data and architecture
 
@@ -34,7 +35,7 @@ The existing cleaned CSV contains 3,604 listings. Its `state` column has 81 none
 
 FastAPI owns data normalization, matching, analytics, and Gemini access. Next.js renders the interactive workflow. Listing IDs combine a dataset-content hash and source-row position, making them stable across searches for the same dataset version.
 
-Source data, notebooks, and saved models are preserved. The legacy prediction endpoint loads its optional artifacts on demand; it is not required for shortlist startup or used by the new UI.
+Source data, notebooks, and saved models are preserved. The saved estimator is Random Forest, selected from the notebook's candidate models. Assessment loads it on demand with its recorded scikit-learn version; shortlisting still starts if the model is unavailable. The legacy prediction endpoint remains separate.
 
 ## API contracts
 
@@ -45,6 +46,7 @@ Python contracts are defined in `api/schemas.py`; frontend types are in `fronten
 - `POST /api/brief/parse`: accepts `{brief}` and returns nullable extracted filters plus review notes. It does not start a search.
 - `POST /api/shortlist`: accepts confirmed `{location, property_type, budget, bedrooms}` and returns `{total, limit, applied_filters, results}`.
 - `GET /api/analytics/overview`: full-dataset listing count, median asking price, valid-price count, histogram bins, location summaries, and missing-location count.
+- `GET /api/listings/{listing_id}/assessment`: reads the saved listing's features and returns a listing-price estimate, asking-price difference, model inputs, and up to three comparable listings. Missing or unsupported features produce an explicit unavailable result; model failures return a sanitized service error.
 
 A result includes its ID, building name, location, type, price, size, bedrooms, bathrooms, price per square foot, and numeric deviations from the request. Missing source facts remain null. Input validation rejects unknown labels, nonfinite or nonpositive budgets, and negative or fractional bedroom counts; technical upper bounds are RM1 trillion and 100 bedrooms.
 
@@ -75,7 +77,13 @@ Comparison shows listing facts and price/bedroom tradeoffs for up to three disti
 
 ## Deferred work
 
-Listing quality review, geographic normalization, comparable-property valuation, AI-written client summaries, conversational clarification, accounts, saved shortlists, CRM integration, maps, and Thai-market data are outside this MVP.
+Formal valuation, arbitrary user-submitted listing assessments, geographic normalization, AI-written client summaries, conversational clarification, accounts, saved shortlists, CRM integration, maps, and Thai-market data are outside this MVP.
+
+## Asking-price assessment
+
+Assess asking price opens a focused detail dialog on a result card, without adding another tab or asking the user to re-enter listing facts. Show the model estimate and the signed difference as `(asking price - estimate) / estimate`; label both as advertised-price context, not achieved value, a confidence interval, or proof of a good deal.
+
+Use recorded size, bedrooms, bathrooms, facility count, type, tenure, land title, and dataset location. Never substitute zero for a missing feature or encode an unknown category as the training baseline. Comparable advertisements keep location and type exact, size within ±20%, and bedrooms within ±1; exclude the subject and exact duplicates, rank by bedroom difference then size difference and stable ID, and show the eligible count. Do not relax these rules when few comparables exist. These listings may overlap model training data and are context, not independent validation.
 
 Follow-up validation should compare manual and assisted shortlisting using equivalent briefs. Measure completion time, reviewer acceptance, constraint violations, and unsupported statements. Keep targets separate from observed results and document changes prompted by feedback.
 

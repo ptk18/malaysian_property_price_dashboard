@@ -57,3 +57,7 @@ Description: Using the completed application and existing Docker setup, prepare 
 ## 14. Document the demo and engineering decisions
 Goal: Explain what the demo solves, how it works, and what was actually verified.
 Description: Update the README and write a concise walkthrough using real supported sample briefs, actual startup/test commands, dataset limitations, and the implemented features from `_docs/plan.md`; include a live link only when publication is verified. Document engineering decisions, known limitations, and remaining acceptance criteria using observed evidence. Provide a two-minute demo script covering brief review, ranked tradeoffs, comparison, and analytics, and describe future user-testing metrics separately from observed evidence.
+
+## 15. Assess a matched listing’s asking price
+Goal: Restore the saved price model as an optional detail action within shortlisting.
+Description: Add an assessment endpoint keyed by stable listing ID, using actual recorded features, validated model categories, and explicit handling of unavailable estimates. Show the estimate, signed asking-price difference, and strictly matched comparable advertisements in an accessible detail dialog, preserving the user's shortlist and comparison state. Pin compatible inference dependencies, package the existing model for deployment, and verify backend contracts, browser recovery and keyboard behavior, and real container inference without paid AI calls.

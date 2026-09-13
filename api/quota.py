@@ -39,7 +39,7 @@ class DailyQuota:
                     connection.execute(
                         "UPDATE usage SET attempts = attempts + 1 WHERE day = ?", (day,)
                     )
-        except sqlite3.Error, OSError:
+        except (sqlite3.Error, OSError):
             raise HTTPException(
                 503, "AI extraction is temporarily unavailable. Enter filters manually."
             ) from None

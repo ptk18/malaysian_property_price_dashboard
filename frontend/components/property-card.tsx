@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { bedroomTradeoff, count, money, priceTradeoff } from "../lib/format";
 import type { Listing } from "../lib/types";
+import { PriceAssessment } from "./price-assessment";
 
 type PropertyCardProps = {
   listing: Listing;
@@ -16,6 +18,7 @@ export function PropertyCard({
   selectionLimitReached,
   onToggle,
 }: PropertyCardProps) {
+  const [assessing, setAssessing] = useState(false);
   return (
     <article
       className={`panel property-card ${isSelected ? "is-selected" : ""}`}
@@ -60,6 +63,19 @@ export function PropertyCard({
           {priceTradeoff(listing.price_delta_pct)}
         </span>
       </div>
+      <button
+        className="text-button assessment-button"
+        aria-haspopup="dialog"
+        onClick={() => setAssessing(true)}
+      >
+        Assess asking price
+      </button>
+      {assessing && (
+        <PriceAssessment
+          listing={listing}
+          onClose={() => setAssessing(false)}
+        />
+      )}
       <label
         className={`select-property ${selectionLimitReached && !isSelected ? "disabled" : ""}`}
       >

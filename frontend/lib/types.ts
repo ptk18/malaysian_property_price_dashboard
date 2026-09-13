@@ -55,3 +55,37 @@ export type Analytics = {
 };
 
 export type SearchForm = { [Key in keyof Filters]: string };
+
+export type Assessment = {
+  listing_id: string;
+  status: "available" | "unavailable";
+  asking_price: number | null;
+  estimated_price: number | null;
+  price_difference: number | null;
+  price_difference_pct: number | null;
+  unavailable_reason: string | null;
+  inputs: {
+    size_sqft: number | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    facility_count: number | null;
+    property_type: string | null;
+    tenure: string | null;
+    land_title: string | null;
+    location: string | null;
+  };
+  comparable_count: number;
+  comparables: {
+    id: string;
+    building_name: string | null;
+    location: string | null;
+    property_type: string | null;
+    price: number | null;
+    size_sqft: number | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    price_per_sqft: number | null;
+  }[];
+  comparable_rules: string;
+  model_name: "Random Forest";
+};

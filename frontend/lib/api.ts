@@ -13,6 +13,13 @@ export async function request<T>(path: string, body?: unknown): Promise<T> {
       signal: AbortSignal.timeout(20000),
     });
     if (!response.ok) {
+      if (path.endsWith("/assessment")) {
+        throw new ApiError(
+          response.status === 404
+            ? "This listing is no longer available. Close this view and run a new search."
+            : "Price assessment is temporarily unavailable. You can still shortlist and compare properties.",
+        );
+      }
       const safeErrors: Record<number, string> = {
         422: "Check the required fields and their allowed values.",
         429: "Today's AI allowance is used. Enter filters manually or try tomorrow (UTC).",

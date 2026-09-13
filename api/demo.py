@@ -4,9 +4,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from api.assessment import assess_listing
 from api.brief import parse_brief
 from api.schemas import (
     AnalyticsSummary,
+    Assessment,
     BriefRequest,
     BriefResult,
     Filters,
@@ -46,3 +48,8 @@ def extract(request: BriefRequest, data: ListingDependency) -> BriefResult:
 @router.get("/analytics/overview")
 def analytics(data: ListingDependency) -> AnalyticsSummary:
     return data.analytics()
+
+
+@router.get("/listings/{listing_id}/assessment")
+def assessment(listing_id: str, data: ListingDependency) -> Assessment:
+    return assess_listing(listing_id, data)

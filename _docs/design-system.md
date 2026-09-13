@@ -30,6 +30,12 @@ Show result cards in three columns on wide screens, two on medium screens, and o
 
 Comparison aligns the same facts across up to three properties, with readable property names and remove actions. On narrow screens use a clearly scrollable comparison region with sticky fact labels. Do not shrink text to force the desktop layout onto mobile.
 
+## Asking-price assessment
+
+Place a quiet Assess asking price action on each result card. Open a focused native dialog using the listing's recorded facts. Show asking price, listing-price estimate, signed price difference, and comparable advertisements. Do not add a separate navigation tab, a confidence score, or a good-deal badge.
+
+Keep the advertised-price limitation near the estimate. Put the full input list and model method in a disclosure. Missing facts, unsupported categories, and service errors need clear messages; errors allow retry and users can always close the dialog. Support Escape, keep Tab navigation inside the dialog, restore focus to its trigger, and preserve comparison selections. The close action stays visible while scrolling on mobile.
+
 ## Analytics patterns
 
 Label the tab `All listings` in its scope description. Show total listings and median asking price before the charts, and use `Dataset location` for the grouping label. Use a histogram for asking-price distribution and readable bars or a compact numeric listing for location count/median comparisons.

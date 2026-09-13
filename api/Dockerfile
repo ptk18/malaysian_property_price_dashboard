@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r requirements-demo.txt
 
 COPY api/ ./api/
 COPY data/houses_cleaned.csv ./data/houses_cleaned.csv
+COPY model/ ./model/
 
 RUN useradd --create-home demo && mkdir -p /app/runtime && chown demo:demo /app/runtime
 USER demo

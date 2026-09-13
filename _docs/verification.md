@@ -4,12 +4,12 @@ Verified locally on 2026-09-13. Automated checks use the supplied dataset and mo
 
 ## Automated checks
 
-- Backend: `.venv/bin/python -m pytest` — **41 passed**. Covers matching boundaries, deterministic ranking and IDs, missing data, analytics reconciliation, request and provider validation, response contracts, sanitized errors, concurrent quotas, persistence, and UTC rollover.
+- Backend: `.venv/bin/python -m pytest` — **63 passed**. Covers matching boundaries, deterministic ranking and IDs, missing data, analytics reconciliation, request and provider validation, response contracts, sanitized errors, concurrent quotas, persistence, UTC rollover, asking-price differences, feature encoding, missing inputs, unsupported categories, and strict comparable selection.
 - Python style: `.venv/bin/ruff check api` and `.venv/bin/ruff format --check api` — passed.
 - Frontend: `npm test` — **4 passed**. Covers rendering, editable extraction, explicit search confirmation, stale responses, and hard-limit review.
 - Frontend style and types: `npm run lint`, `npm run format:check`, and `npm run typecheck` — passed.
 - Production build: `npm run build` — passed.
-- Browser: `npm run test:e2e` — **5 passed** against the production frontend and local API. Covers manual search, three-property comparison, selection reset, analytics, editable extraction, quota fallback, mobile overflow, and keyboard entry.
+- Browser: `npm run test:e2e` — **9 passed** against the production frontend and local API. Covers manual search, three-property comparison, selection reset, analytics, editable extraction, quota fallback, mobile overflow, keyboard entry, assessment details, missing estimates, retry, focus containment, and return to the selected card.
 - Containers: `docker compose config --quiet` and `docker compose -p property-shortlist-demo build` — passed for both services. The API container smoke check used disabled networking and verified health, analytics, and disabled-AI behavior.
 
 The backend suite emits two upstream deprecation warnings from the Starlette/AnyIO test stack. They do not fail the pinned test setup.
@@ -20,7 +20,7 @@ Playwright/Chromium checks cover desktop at 1440 × 1000 and mobile at 390 × 84
 
 Screenshots and failure traces are generated under ignored `frontend/test-results/`. These checks provide focused usability and keyboard coverage, not a comprehensive accessibility audit.
 
-The simplified UI retains the five browser scenarios and four frontend integration tests. Browser coverage also checks that a completed mobile search focuses its results, comparison hides the cards, and returning restores the cards, retained selections, and Compare-button focus. Screenshots use reduced motion to capture settled control states. The updated production build, lint, formatting, and type checks pass.
+The UI has nine browser scenarios and four frontend integration tests. Browser coverage also checks that a completed mobile search focuses its results, comparison hides the cards, and returning restores the cards, retained selections, and Compare-button focus. Screenshots use reduced motion to capture settled control states. The updated production build, lint, formatting, and type checks pass.
 
 Additional responsive checks at 320px, 390px, 768px, and 1440px found no whole-page horizontal overflow in results or analytics. The mobile price chart shows all bands without horizontal scrolling, and a mobile search with no matches brings its empty state into view. These UI checks made no live model requests.
 
@@ -42,6 +42,10 @@ The final request succeeded through the production frontend and local API. The b
 The successful response reported 635 prompt tokens and 62 output tokens, 697 total. Rejected requests returned no usage metadata; no currency cost was inferred. The backend's 41 tests and Ruff checks passed after the fix.
 
 This establishes one successful live workflow. Hard-budget wording, unsupported preferences, and missing fields still need live evaluation; their automated checks remain mocked. Temporary AI-enabled test servers were stopped after the check.
+
+## Saved-model assessment
+
+The saved Random Forest loaded under scikit-learn 1.6.1 in the Python 3.13 inference environment. All 2,967 complete listings produced finite positive estimates; 637 lacked required inputs. The deployment image reproduced the first sample listing's RM440,556.67 estimate, 13.49% asking-price difference, and three comparable records with networking disabled. A separate browser check using the real API verified The Palladium's above-estimate result and Platinum Lake PV 20's RM540,189 estimate with a 7.44% below-estimate asking price, then returned to comparison. Desktop and mobile screenshots were inspected. See [model.md](model.md) for provenance and limits. No saved models or source datasets were changed, and no live Gemini calls were made for this feature.
 
 ## Remaining validation
 

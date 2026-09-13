@@ -17,7 +17,7 @@ Frontend build-time settings:
 
 Backend runtime settings:
 
-- `AI_ENABLED`: `false` by default. Set to `true` when model usage is intended.
+- `AI_ENABLED`: `false` by default. Set to `true` when Gemini extraction is intended. Local price assessment does not use this flag or the Gemini quota.
 - `GEMINI_API_KEY`: private server-side secret. Configure through the hosting secret manager or a private local environment; do not commit it or expose it in logs.
 - `GEMINI_MODEL`: defaults to `gemini-3.8-flash`.
 - `AI_DAILY_LIMIT`: maximum upstream attempts per UTC day, defaults to `100`. A nonpositive value blocks all attempts. Failed attempts count too.
@@ -31,7 +31,7 @@ The quota counts requests, not currency. Provider/account spending controls shou
 1. Choose a host supporting the topology above, persistent storage, and HTTPS. Set the frontend and backend domains and a modest resource allocation.
 2. Build the API using `api/Dockerfile`, with repository root as its build context. Build the frontend using `frontend/Dockerfile`, setting `NEXT_PUBLIC_API_BASE_URL` to the backend's public HTTPS origin as a build argument.
 3. Attach the persistent writable volume to the backend's `/app/runtime`. Set CORS and other non-secret configuration. Start with `AI_ENABLED=false` and configure the private key only on the backend.
-4. Publish both containers. Verify backend `/api/health`, load the frontend without a login, try sample filters, compare three properties, and check Analytics. Confirm the actual browser requests go to the intended HTTPS backend.
+4. Publish both containers. Verify backend `/api/health`, load the frontend without a login, try sample filters, open Assess asking price on a result, compare three properties, and check Analytics. Confirm the actual browser requests go to the intended HTTPS backend.
 5. For an authorized live-provider check, enable AI and test a small set of briefs, missing fields, unsupported constraints, and hard-budget wording. Confirm editable output and manual fallback; record real findings before claiming live Gemini reliability.
 6. Verify rate limits, persistent quota state, and HTTPS in the real host. Record the public URL in the README and verification document only after it works.
 
@@ -41,7 +41,7 @@ Local tests do not establish public reachability or production HTTPS. Mocked bro
 
 `docker compose config --quiet` validates the Compose file without printing interpolated secrets. `docker compose build` builds the two images locally. `docker compose up` starts the local stack; confirm ports 3000 and 8000 are available first and avoid disturbing an unrelated service occupying them.
 
-The API image contains only demo dependencies and the cleaned CSV, with legacy prediction available only if its additional dependencies and model artifacts are deliberately supplied later. Neither image requires an API key at build time, and the frontend image must not contain one. Nested dependency caches, local build outputs, test artifacts, environment files, and quota data are excluded from the Docker build context.
+The API image uses Python 3.13, includes the cleaned CSV and saved model artifacts, and pins scikit-learn 1.6.1 to match the estimator. Rebuild both services when releasing price assessment. A frontend-only redeploy cannot add the backend route or model dependencies. Verify an assessment separately from `/api/health`, which deliberately does not load the model. The original prediction route remains available but its legacy confidence score is not used by the new UI. Neither image requires an API key at build time, and the frontend image must not contain one. Nested dependency caches, local build outputs, test artifacts, environment files, and quota data are excluded from the Docker build context.
 
 ## Rollback
 

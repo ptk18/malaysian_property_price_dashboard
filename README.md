@@ -7,15 +7,16 @@ An agent workspace for turning buyer requirements into an explainable property s
 - **Editable brief extraction:** Gemini proposes location, property type, target budget, and bedroom count. Search starts only after confirmation.
 - **Deterministic matching:** location and type stay exact; price allows ±10% of the target and bedrooms allow ±1. Exact bedroom matches rank first, followed by price proximity.
 - **Visible tradeoffs:** result cards and comparison show asking prices, size, bedrooms, price per square foot, and deviations from the confirmed request.
+- **Asking-price assessment:** open a listing’s details to compare its asking price with a Random Forest estimate and up to three comparable advertisements. Missing inputs are explained rather than filled in.
 - **Dataset analytics:** listing counts, median asking prices, price distribution, and location comparisons, with missing data and the upper price tail disclosed.
 - **Manual fallback:** filtering works without AI. Server-side extraction has a persistent daily request cap, bounded inputs, and safe error responses.
 
 ## Quick start
 
-Use Python 3.14 and Node.js 24 or newer. From the repository root:
+Use Python 3.13 and Node.js 24 or newer. The saved estimator requires scikit-learn 1.6.1; the backend dependencies are pinned for that runtime. From the repository root:
 
 ```bash
-python3 -m venv .venv
+python3.13 -m venv .venv
 .venv/bin/python -m pip install -r api/requirements-dev.txt
 .venv/bin/python -m uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
 ```
@@ -38,12 +39,13 @@ The Next.js frontend separates workflow state, input controls, result rendering,
 
 - `api/schemas.py`: request validation and response contracts.
 - `api/shortlist.py`: read-only dataset adapter, matching, and analytics.
+- `api/assessment.py`: saved-model inference, feature validation, and comparable listings.
 - `api/brief.py` and `api/quota.py`: provider integration and persistent request limits.
 - `api/demo.py`: shortlist routes; `api/main.py` also retains the original analytics and prediction routes.
 - `frontend/components/` and `frontend/hooks/`: UI components and workflow state.
 - `frontend/lib/`: HTTP requests, shared types, formatting, and sample briefs.
 
-FastAPI exposes the API schema at `http://127.0.0.1:8000/docs`. The new UI does not depend on a prediction model. Legacy prediction loads optional artifacts on demand and returns an unavailable response when its dependencies or artifacts are absent; its saved model has not been revalidated.
+FastAPI exposes the API schema at `http://127.0.0.1:8000/docs`. Price assessment loads the bundled model on demand and works without Gemini or an API key. Matching and analytics remain available if the model cannot load. See the [model notes](_docs/model.md) for its inputs, compatibility checks, and limits.
 
 ## Development checks
 
@@ -67,7 +69,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Use `ruff format api` and `npm run format` to apply formatting. Browser tests build the production frontend, start isolated servers on ports 3017 and 8017, use the actual CSV for matching and analytics, and mock Gemini responses. Screenshots and traces are excluded from source control.
+Use `ruff format api` and `npm run format` to apply formatting. Browser tests build the production frontend, start isolated servers on ports 3017 and 8017, use the actual CSV for matching and analytics, and mock Gemini and price-assessment responses. Real saved-model inference is checked separately. Screenshots and traces are excluded from source control.
 
 To serve the production frontend locally, run `npm run build` followed by `npm run start`.
 
@@ -78,6 +80,8 @@ docker compose up --build
 ```
 
 The frontend runs on port 3000 and the API on port 8000. Both containers use non-root users. A named volume preserves the daily quota across backend restarts. See [deployment.md](_docs/deployment.md) for HTTPS, CORS, persistent storage, and release checks.
+
+If an existing local virtual environment uses Python 3.14, create a separate Python 3.13 environment and install the pinned dependencies there, or use Docker. Rebuild both deployed services after adding price assessment; the backend image now includes the model and its dependencies.
 
 ## Data and limitations
 
@@ -94,5 +98,6 @@ Gemini integration has automated mocked coverage and one successful live browser
 - [Development process](_docs/process.md)
 - [Testing guidelines](_docs/testing-guidelines.md)
 - [Design system](_docs/design-system.md)
+- [Price model and limitations](_docs/model.md)
 - [Verification record](_docs/verification.md)
 - [Demo walkthrough and engineering decisions](_docs/demo-walkthrough.md)

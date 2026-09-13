@@ -43,7 +43,7 @@ def parse_number(
         if integer and not result.is_integer():
             return None
         return int(result) if integer else result
-    except ValueError, TypeError, OverflowError:
+    except (ValueError, TypeError, OverflowError):
         return None
 
 
@@ -53,9 +53,11 @@ class Listings:
     def __init__(self, rows: Iterable[Mapping[str, object]], version: str) -> None:
         self.version = version
         self.rows: list[ListingRecord] = []
+        self.source_by_id: dict[str, Mapping[str, object]] = {}
         locations: dict[str, str] = {}
         property_types: dict[str, str] = {}
         for index, row in enumerate(rows):
+            self.source_by_id[f"{version}-{index:05d}"] = dict(row)
             location, kind = (
                 normalize_label(row.get("state")),
                 normalize_label(row.get("Property Type")),
