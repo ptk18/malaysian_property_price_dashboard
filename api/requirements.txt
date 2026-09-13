@@ -1,7 +1,4 @@
-fastapi
-uvicorn
-pandas
-numpy
+-r requirements-demo.txt
 scikit-learn
 xgboost
 joblib

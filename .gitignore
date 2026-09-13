@@ -1,4 +1,11 @@
 node_modules/
+.venv/
+.pytest_cache/
+*.tsbuildinfo
+runtime/
+test-results/
+playwright-report/
+.env.*
 
 .next/
 __pycache__/
@@ -11,3 +18,8 @@ data/Dataset.csv
 temp/
 
 images/
+
+# Generated framework and tooling files
+frontend/next-env.d.ts
+.ruff_cache/
+.DS_Store

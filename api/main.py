@@ -1,23 +1,58 @@
-from fastapi import FastAPI, Query
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import pandas as pd
-import numpy as np
-import joblib
+import os
+from functools import lru_cache
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+
+from api.demo import router
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 df = pd.read_csv(BASE_DIR / "data" / "houses_cleaned.csv")
-model = joblib.load(BASE_DIR / "model" / "model.pkl")
-feature_columns = joblib.load(BASE_DIR / "model" / "feature_columns.pkl")
+
+
+@lru_cache(maxsize=1)
+def prediction_artifacts():
+    try:
+        import joblib
+
+        return (
+            joblib.load(BASE_DIR / "model" / "model.pkl"),
+            joblib.load(BASE_DIR / "model" / "feature_columns.pkl"),
+        )
+    except Exception:
+        raise HTTPException(
+            503, "Legacy prediction is unavailable. Property shortlisting is still available."
+        ) from None
+
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+        ).split(",")
+        if origin.strip()
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(router)
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_request(request: Request, exc: RequestValidationError):
+    # Never echo raw buyer briefs or submitted values in validation errors.
+    return JSONResponse(
+        status_code=422, content={"detail": "Check the required fields and their allowed values."}
+    )
 
 
 @app.get("/api/stats")
@@ -68,8 +103,17 @@ def get_listings(
     start = (page - 1) * per_page
     page_df = filtered.iloc[start : start + per_page]
 
-    cols = ["Building Name", "Property Type", "Property Size", "Bedroom",
-            "Bathroom", "price", "state", "Tenure Type", "price_per_sqft"]
+    cols = [
+        "Building Name",
+        "Property Type",
+        "Property Size",
+        "Bedroom",
+        "Bathroom",
+        "price",
+        "state",
+        "Tenure Type",
+        "price_per_sqft",
+    ]
     records = page_df[cols].where(page_df[cols].notna(), None).to_dict(orient="records")
 
     return {"total": total, "page": page, "per_page": per_page, "data": records}
@@ -83,19 +127,23 @@ def price_distribution():
     counts, edges = np.histogram(capped, bins=20)
     bins = []
     for i in range(len(counts)):
-        bins.append({
-            "bin_start": round(edges[i]),
-            "bin_end": round(edges[i + 1]),
-            "count": int(counts[i]),
-        })
+        bins.append(
+            {
+                "bin_start": round(edges[i]),
+                "bin_end": round(edges[i + 1]),
+                "count": int(counts[i]),
+            }
+        )
     overflow_count = int((prices > cap).sum())
     if overflow_count > 0:
-        bins.append({
-            "bin_start": round(cap),
-            "bin_end": round(float(prices.max())),
-            "count": overflow_count,
-            "is_overflow": True,
-        })
+        bins.append(
+            {
+                "bin_start": round(cap),
+                "bin_end": round(float(prices.max())),
+                "count": overflow_count,
+                "is_overflow": True,
+            }
+        )
     return {
         "bins": bins,
         "median": round(float(prices.median())),
@@ -110,7 +158,12 @@ def price_by_state():
     grouped = df.groupby("state")["price"].agg(["mean", "median", "count"]).reset_index()
     grouped = grouped.sort_values("count", ascending=False)
     return [
-        {"state": r["state"], "avg_price": round(r["mean"]), "median_price": round(r["median"]), "count": int(r["count"])}
+        {
+            "state": r["state"],
+            "avg_price": round(r["mean"]),
+            "median_price": round(r["median"]),
+            "count": int(r["count"]),
+        }
         for _, r in grouped.iterrows()
     ]
 
@@ -136,7 +189,12 @@ def price_by_type():
     grouped = df.groupby("Property Type")["price"].agg(["mean", "median", "count"]).reset_index()
     grouped = grouped.sort_values("median", ascending=False)
     return [
-        {"property_type": r["Property Type"], "avg_price": round(r["mean"]), "median_price": round(r["median"]), "count": int(r["count"])}
+        {
+            "property_type": r["Property Type"],
+            "avg_price": round(r["mean"]),
+            "median_price": round(r["median"]),
+            "count": int(r["count"]),
+        }
         for _, r in grouped.iterrows()
     ]
 
@@ -146,7 +204,9 @@ def price_vs_size():
     subset = df[["price", "Property Size"]].dropna()
     if len(subset) > 1000:
         subset = subset.sample(1000, random_state=42)
-    return [{"price": int(r["price"]), "size": int(r["Property Size"])} for _, r in subset.iterrows()]
+    return [
+        {"price": int(r["price"]), "size": int(r["Property Size"])} for _, r in subset.iterrows()
+    ]
 
 
 @app.get("/api/charts/price-vs-size-overview")
@@ -159,7 +219,10 @@ def price_vs_size_overview():
     else:
         sample = subset
     return {
-        "data": [{"price": int(r["price"]), "size": int(r["Property Size"])} for _, r in sample.iterrows()],
+        "data": [
+            {"price": int(r["price"]), "size": int(r["Property Size"])}
+            for _, r in sample.iterrows()
+        ],
         "correlation": correlation,
         "total_points": int(len(subset)),
     }
@@ -169,7 +232,11 @@ def price_vs_size_overview():
 def price_per_sqft_by_state():
     grouped = df.groupby("state")["price_per_sqft"].agg(["mean", "median"]).reset_index()
     return [
-        {"state": r["state"], "avg_price_per_sqft": round(r["mean"], 2), "median_price_per_sqft": round(r["median"], 2)}
+        {
+            "state": r["state"],
+            "avg_price_per_sqft": round(r["mean"], 2),
+            "median_price_per_sqft": round(r["median"], 2),
+        }
         for _, r in grouped.iterrows()
     ]
 
@@ -187,16 +254,21 @@ class PredictRequest(BaseModel):
 
 @app.post("/api/predict")
 def predict(req: PredictRequest):
-    input_data = pd.DataFrame([{
-        "Property Size": req.property_size,
-        "Bedroom": req.bedroom,
-        "Bathroom": req.bathroom,
-        "facility_count": req.facility_count,
-        "Property Type": req.property_type,
-        "Tenure Type": req.tenure_type,
-        "Land Title": req.land_title,
-        "state": req.state,
-    }])
+    model, feature_columns = prediction_artifacts()
+    input_data = pd.DataFrame(
+        [
+            {
+                "Property Size": req.property_size,
+                "Bedroom": req.bedroom,
+                "Bathroom": req.bathroom,
+                "facility_count": req.facility_count,
+                "Property Type": req.property_type,
+                "Tenure Type": req.tenure_type,
+                "Land Title": req.land_title,
+                "state": req.state,
+            }
+        ]
+    )
     input_encoded = pd.get_dummies(input_data)
     input_aligned = input_encoded.reindex(columns=feature_columns, fill_value=0)
     prediction = float(model.predict(input_aligned)[0])
